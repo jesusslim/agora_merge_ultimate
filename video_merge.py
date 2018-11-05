@@ -6,6 +6,7 @@ import sys
 import glob
 import subprocess
 import multiprocessing
+import ConfigParser
 
 HOME = os.path.dirname(os.path.realpath(__file__))
 pathEnv = os.getenv('PATH')
@@ -84,12 +85,21 @@ def worker(dirs):
         print "handle dir_name:", every_dir_name
         SessionConvert(every_dir_name)
 
-
+config = ConfigParser.ConfigParser()
+config.read("/agora2/Agora_Recording_SDK_for_Linux_FULL/tools/conf.ini")
+try:
+    node = config.get("global", "node")
+except:
+    node = 0
+node = abs(int(node))
 worker_num = 5
 all_dirs = []
 for i in range(0, worker_num):
     all_dirs.append([])
-dir_names = glob.glob("/agora2/201*/*")
+if node > 0:
+    dir_names = glob.glob("/agora_public/sp" + str(node) + "/201*/*")
+else:
+    dir_names = glob.glob("/agora2/201*/*")
 i = 1
 for dir_name in dir_names:
     if not os.path.isdir(dir_name):
