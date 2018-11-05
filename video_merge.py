@@ -32,9 +32,13 @@ def SessionConvert(folder_name):
     with open("users.txt") as f:
         lines = f.readlines()
         for line in lines:
-            items = line.split(" ");
+            items = line.split(" ")
             user_id = items[0]
-            ts = int(items[1])
+            try:
+                ts = int(items[1])
+            except Exception as e:
+                print(e)
+                return
             video = glob.glob("final_"+user_id+"_*.mp4")
             my_final = video[0]
             if my_final:
@@ -110,7 +114,6 @@ for dir_name in dir_names:
         continue
 
     convert_done_file_path = os.path.join(dir_name, "ultimate-done.txt")
-    print "merge_done_file_path:", convert_done_file_path
     if os.path.exists(convert_done_file_path):
         print "merge_already_done, gone"
         continue
