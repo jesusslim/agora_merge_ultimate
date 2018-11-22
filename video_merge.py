@@ -58,19 +58,32 @@ def SessionConvert(folder_name):
                 merge_videos.append(tmp_new_final)
 
         hv = ['hstack', 'vstack']
-        for h in hv:
-            merge_cmd = "ffmpeg "
-            index = 0
-            n_v_n = ""
-            n_a_n = ""
-            for v in merge_videos:
-                merge_cmd += "-i "+v+" "
-                n_v_n += "["+str(index)+":v:0]"
-                n_a_n += "["+str(index)+":a:0]"
-                index = index + 1
-
-            merge_cmd += '-filter_complex "' + n_v_n + h +'=inputs=' + str(len(merge_videos)) + ';' + n_a_n + ' amix=inputs=' + str(len(merge_videos)) + ':duration=first:dropout_transition=0,dynaudnorm" ' + 'ultimate-' + h + '_' + suffix + '.mp4';
-            cmd.append(merge_cmd)
+        video_count = len(merge_videos)
+        if video_count == 2:
+            for h in hv:
+                merge_cmd = "ffmpeg "
+                index = 0
+                n_v_n = ""
+                n_a_n = ""
+                for v in merge_videos:
+                    merge_cmd += "-i "+v+" "
+                    n_v_n += "["+str(index)+":v:0]"
+                    n_a_n += "["+str(index)+":a:0]"
+                    index = index + 1
+                merge_cmd += '-filter_complex "' + n_v_n + h +'=inputs=' + str(len(merge_videos)) + ';' + n_a_n + ' amix=inputs=' + str(len(merge_videos)) + ':duration=first:dropout_transition=0,dynaudnorm" ' + 'ultimate-' + h + '_' + suffix + '.mp4';
+                cmd.append(merge_cmd)
+        else:
+            for h in hv:
+                merge_cmd = "ffmpeg "
+                filter_complex = ""
+                if h == 'hstack':
+                    filter_complex += "[1:v][0:v]scale2ref=oh*mdar:ih[1v][0v];[2:v][0v]scale2ref=oh*mdar:ih[2v][0v];[0v][1v][2v]hstack=3"
+                else:
+                    filter_complex += "[1:v][0:v]scale2ref=iw:ow/mdar[1v][0v];[2:v][0v]scale2ref=iw:ow/mdar[2v][0v];[0v][1v][2v]vstack=3"
+                for v in merge_videos:
+                    merge_cmd += "-i "+v+" "
+                merge_cmd += '-filter_complex "'+filter_complex+',scale=\'2*trunc(iw/2)\':\'2*trunc(ih/2)\';[0:a:0][1:a:0][2:a:0] amix=inputs=3:duration=first:dropout_transition=0,dynaudnorm" ' + 'ultimate-' + h + '_' + suffix + '.mp4'
+                cmd.append(merge_cmd)
 
         real_cmd = " && ".join(cmd)
         print real_cmd
