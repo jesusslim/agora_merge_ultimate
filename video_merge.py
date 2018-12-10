@@ -114,7 +114,7 @@ all_dirs = []
 for i in range(0, worker_num):
     all_dirs.append([])
 if node > 0:
-    dir_names = glob.glob("/agora_public/sp" + str(node) + "/201*/*")
+    dir_names = glob.glob("/agora_public_new/sp" + str(node) + "/201*/*")
 else:
     dir_names = glob.glob("/agora2/201*/*")
 i = 1
